@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>マイクロマウスタイム計測システム</title>
+    <title>ラジコンタイム計測システム</title>
     <style>
         * {
             margin: 0;
@@ -243,6 +243,13 @@
             <span class="connection-status disconnected" id="connectionStatus">未接続</span>
         </div>
 
+        <!-- エントリー管理 -->
+        <div class="ble-control">
+            <button class="button success" onclick="loadNextEntry()">👥 次のエントリー者へ</button>
+            <button class="button" onclick="loadCSV()">📄 CSVファイル読み込み</button>
+            <input type="file" id="csvFile" accept=".csv" style="display: none;" onchange="handleCSVFile(event)">
+        </div>
+
         <div class="grid">
             <!-- エントリー情報 -->
             <div class="card">
@@ -319,10 +326,13 @@
         // データ保存用
         let currentRecordsList = [];
         let allRankingData = JSON.parse(localStorage.getItem('rankingData') || '[]');
+        let entryList = [];
+        let currentEntryIndex = 0;
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
             loadSavedData();
+            loadDefaultCSV(); // デフォルトCSVの読み込み
             updateDisplay();
         });
 
@@ -333,7 +343,9 @@
                 entryName: document.getElementById('entryName').value,
                 currentRound: document.getElementById('currentRound').value,
                 currentRecords: currentRecordsList,
-                rankingData: allRankingData
+                rankingData: allRankingData,
+                entryList: entryList,
+                currentEntryIndex: currentEntryIndex
             };
             localStorage.setItem('racingData', JSON.stringify(data));
             localStorage.setItem('rankingData', JSON.stringify(allRankingData));
@@ -345,6 +357,8 @@
             if (saved.entryName) document.getElementById('entryName').value = saved.entryName;
             if (saved.currentRound) document.getElementById('currentRound').value = saved.currentRound;
             if (saved.currentRecords) currentRecordsList = saved.currentRecords;
+            if (saved.entryList) entryList = saved.entryList;
+            if (saved.currentEntryIndex !== undefined) currentEntryIndex = saved.currentEntryIndex;
             updateDisplay();
         }
 
@@ -590,6 +604,128 @@
         // 初期表示更新
         updateTimerDisplay();
         updateRound();
+
+        // CSV関連機能
+        async function loadDefaultCSV() {
+            try {
+                const response = await fetch('./entries.csv');
+                if (response.ok) {
+                    const csvText = await response.text();
+                    parseCSV(csvText);
+                    console.log('デフォルトCSVファイルを読み込みました');
+                } else {
+                    console.log('デフォルトCSVファイルが見つかりません');
+                    // デフォルトエントリーを設定
+                    entryList = [
+                        { number: '#001', name: 'エントリー1' },
+                        { number: '#002', name: 'エントリー2' },
+                        { number: '#003', name: 'エントリー3' },
+                        { number: '#004', name: 'エントリー4' },
+                        { number: '#005', name: 'エントリー5' }
+                    ];
+                    setCurrentEntry();
+                }
+            } catch (error) {
+                console.error('CSVファイル読み込みエラー:', error);
+                // デフォルトエントリーを設定
+                entryList = [
+                    { number: '#001', name: 'エントリー1' },
+                    { number: '#002', name: 'エントリー2' },
+                    { number: '#003', name: 'エントリー3' },
+                    { number: '#004', name: 'エントリー4' },
+                    { number: '#005', name: 'エントリー5' }
+                ];
+                setCurrentEntry();
+            }
+        }
+
+        function loadCSV() {
+            document.getElementById('csvFile').click();
+        }
+
+        function handleCSVFile(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'text/csv') {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const csvText = e.target.result;
+                    parseCSV(csvText);
+                    alert('CSVファイルを読み込みました！');
+                };
+                reader.readAsText(file, 'UTF-8');
+            } else {
+                alert('CSVファイルを選択してください。');
+            }
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            entryList = [];
+            
+            // ヘッダー行をスキップ（1行目）
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line) {
+                    const columns = line.split(',').map(col => col.trim().replace(/"/g, ''));
+                    if (columns.length >= 2) {
+                        entryList.push({
+                            number: columns[0],
+                            name: columns[1]
+                        });
+                    }
+                }
+            }
+            
+            currentEntryIndex = 0;
+            setCurrentEntry();
+            saveData();
+        }
+
+        function setCurrentEntry() {
+            if (entryList.length > 0 && currentEntryIndex < entryList.length) {
+                const entry = entryList[currentEntryIndex];
+                document.getElementById('entryNumber').value = entry.number;
+                document.getElementById('entryName').value = entry.name;
+            }
+        }
+
+        function loadNextEntry() {
+            if (entryList.length === 0) {
+                alert('エントリーリストが読み込まれていません。CSVファイルを読み込んでください。');
+                return;
+            }
+
+            // 次のエントリーへ移動
+            currentEntryIndex = (currentEntryIndex + 1) % entryList.length;
+            
+            // リセット処理（総合ランキング以外）
+            resetCurrentEntryData();
+            
+            // 新しいエントリー情報を設定
+            setCurrentEntry();
+            
+            alert(`次のエントリー者: ${entryList[currentEntryIndex].name} に移動しました`);
+            saveData();
+        }
+
+        function resetCurrentEntryData() {
+            // 現在の記録をクリア
+            currentRecordsList = [];
+            
+            // ラウンドを1にリセット
+            document.getElementById('currentRound').value = 1;
+            
+            // タイマーをリセット
+            resetTimer();
+            
+            // 計測タイムをリセット
+            document.getElementById('receivedTime').textContent = '00.000';
+            document.getElementById('manualTime').value = '';
+            
+            // 表示を更新
+            updateDisplay();
+            updateRound();
+        }
     </script>
 </body>
 </html>
