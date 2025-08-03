@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイクロマウスタイム計測システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.danger {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+        }
+
+        .button.success {
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+        }
+
+        .timer-display {
+            font-size: 3em;
+            font-weight: bold;
+            text-align: center;
+            color: #2d3748;
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .current-time {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-align: center;
+            color: #667eea;
+            margin: 15px 0;
+        }
+
+        .round-display {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            color: #38a169;
+            margin: 15px 0;
+        }
+
+        .records-list {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 10px;
+            border-left: 5px solid #ffd700;
+        }
+
+        .ranking-item:nth-child(1) { border-left-color: #ffd700; }
+        .ranking-item:nth-child(2) { border-left-color: #c0c0c0; }
+        .ranking-item:nth-child(3) { border-left-color: #cd7f32; }
+        .ranking-item:nth-child(4) { border-left-color: #667eea; }
+        .ranking-item:nth-child(5) { border-left-color: #764ba2; }
+
+        .ble-control {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .connection-status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .connected {
+            background: #38a169;
+            color: white;
+        }
+
+        .disconnected {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .best-time {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e53e3e;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .position {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ffd700;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .timer-display {
+                font-size: 2em;
+            }
+            
+            .current-time {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏎️ ラジコンタイム計測システム</h1>
+        
+        <!-- BLE接続制御 -->
+        <div class="ble-control">
+            <button class="button" onclick="connectBLE()">📡 BLE接続</button>
+            <button class="button danger" onclick="disconnectBLE()">🔌 切断</button>
+            <span class="connection-status disconnected" id="connectionStatus">未接続</span>
+        </div>
+
+        <div class="grid">
+            <!-- エントリー情報 -->
+            <div class="card">
+                <h2>👤 エントリー情報</h2>
+                <label>エントリーナンバー:</label>
+                <input type="text" id="entryNumber" placeholder="例: #001" oninput="updateData()">
+                <label>エントリー名:</label>
+                <input type="text" id="entryName" placeholder="例: 田中太郎" oninput="updateData()">
+            </div>
+
+            <!-- タイマー -->
+            <div class="card">
+                <h2>⏰ 5分タイマー</h2>
+                <div class="timer-display" id="timerDisplay">05:00</div>
+                <div style="text-align: center;">
+                    <button class="button success" onclick="startTimer()">▶️ スタート</button>
+                    <button class="button danger" onclick="stopTimer()">⏸️ ストップ</button>
+                    <button class="button" onclick="resetTimer()">🔄 リセット</button>
+                </div>
+            </div>
+
+            <!-- 計測タイム -->
+            <div class="card">
+                <h2>🏁 計測タイム</h2>
+                <div class="current-time" id="receivedTime">00.000</div>
+                <label>手動入力:</label>
+                <input type="text" id="manualTime" placeholder="例: 12.345" oninput="updateReceivedTime()">
+                <button class="button success" onclick="addCurrentTime()">📝 記録追加</button>
+            </div>
+
+            <!-- ラウンド数 -->
+            <div class="card">
+                <h2>🔢 ラウンド情報</h2>
+                <div class="round-display" id="roundDisplay">1 / 5</div>
+                <label>現在のラウンド:</label>
+                <input type="number" id="currentRound" value="1" min="1" max="5" oninput="updateRound()">
+            </div>
+
+            <!-- 現在走者の記録 -->
+            <div class="card">
+                <h2>📊 現在走者の記録</h2>
+                <div class="records-list" id="currentRecords">
+                    <div style="text-align: center; color: #718096;">記録がありません</div>
+                </div>
+                <button class="button danger" onclick="clearCurrentRecords()">🗑️ 記録クリア</button>
+            </div>
+
+            <!-- 順位・ベストタイム -->
+            <div class="card">
+                <h2>🏆 現在走者の成績</h2>
+                <div class="position" id="currentPosition">-位</div>
+                <div class="best-time" id="currentBestTime">ベスト: --.-</div>
+            </div>
+        </div>
+
+        <!-- ランキング -->
+        <div class="card">
+            <h2>🥇 総合ランキング (1位〜5位)</h2>
+            <button class="button success" onclick="updateRanking()">🔄 ランキング更新</button>
+            <div id="rankingList">
+                <div style="text-align: center; color: #718096; margin: 20px 0;">ランキングデータがありません</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let bleDevice = null;
+        let bleCharacteristic = null;
+        let timerInterval = null;
+        let timerSeconds = 300; // 5分 = 300秒
+        let isTimerRunning = false;
+        
+        // データ保存用
+        let currentRecordsList = [];
+        let allRankingData = JSON.parse(localStorage.getItem('rankingData') || '[]');
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedData();
+            updateDisplay();
+        });
+
+        // データ保存・読み込み
+        function saveData() {
+            const data = {
+                entryNumber: document.getElementById('entryNumber').value,
+                entryName: document.getElementById('entryName').value,
+                currentRound: document.getElementById('currentRound').value,
+                currentRecords: currentRecordsList,
+                rankingData: allRankingData
+            };
+            localStorage.setItem('racingData', JSON.stringify(data));
+            localStorage.setItem('rankingData', JSON.stringify(allRankingData));
+        }
+
+        function loadSavedData() {
+            const saved = JSON.parse(localStorage.getItem('racingData') || '{}');
+            if (saved.entryNumber) document.getElementById('entryNumber').value = saved.entryNumber;
+            if (saved.entryName) document.getElementById('entryName').value = saved.entryName;
+            if (saved.currentRound) document.getElementById('currentRound').value = saved.currentRound;
+            if (saved.currentRecords) currentRecordsList = saved.currentRecords;
+            updateDisplay();
+        }
+
+        // BLE接続
+        async function connectBLE() {
+            try {
+                console.log('BLE接続を開始...');
+                bleDevice = await navigator.bluetooth.requestDevice({
+                    filters: [
+                        { namePrefix: 'ESP32' },
+                        { services: ['12345678-1234-1234-1234-123456789abc'] }
+                    ],
+                    optionalServices: ['12345678-1234-1234-1234-123456789abc']
+                });
+
+                const server = await bleDevice.gatt.connect();
+                const service = await server.getPrimaryService('12345678-1234-1234-1234-123456789abc');
+                bleCharacteristic = await service.getCharacteristic('87654321-4321-4321-4321-cba987654321');
+
+                // 通知を有効化
+                await bleCharacteristic.startNotifications();
+                bleCharacteristic.addEventListener('characteristicvaluechanged', handleBLEData);
+
+                document.getElementById('connectionStatus').textContent = 'BLE接続中';
+                document.getElementById('connectionStatus').className = 'connection-status connected';
+                
+                console.log('BLE接続成功');
+            } catch (error) {
+                console.error('BLE接続エラー:', error);
+                alert('BLE接続に失敗しました: ' + error.message);
+            }
+        }
+
+        async function disconnectBLE() {
+            if (bleDevice && bleDevice.gatt.connected) {
+                bleDevice.gatt.disconnect();
+                document.getElementById('connectionStatus').textContent = '未接続';
+                document.getElementById('connectionStatus').className = 'connection-status disconnected';
+                console.log('BLE切断完了');
+            }
+        }
+
+        // BLEデータ受信処理
+        function handleBLEData(event) {
+            const value = new TextDecoder().decode(event.target.value);
+            console.log('BLEデータ受信:', value);
+            
+            // タイムデータの形式を想定 (例: "TIME:12.345")
+            if (value.startsWith('TIME:')) {
+                const timeValue = value.replace('TIME:', '');
+                document.getElementById('receivedTime').textContent = timeValue;
+                document.getElementById('manualTime').value = timeValue;
+            }
+        }
+
+        // タイマー機能
+        function startTimer() {
+            if (!isTimerRunning) {
+                isTimerRunning = true;
+                timerInterval = setInterval(updateTimer, 1000);
+            }
+        }
+
+        function stopTimer() {
+            isTimerRunning = false;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        }
+
+        function resetTimer() {
+            stopTimer();
+            timerSeconds = 300;
+            updateTimerDisplay();
+        }
+
+        function updateTimer() {
+            if (timerSeconds > 0) {
+                timerSeconds--;
+                updateTimerDisplay();
+            } else {
+                stopTimer();
+                alert('⏰ タイムアップ！');
+            }
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timerSeconds / 60);
+            const seconds = timerSeconds % 60;
+            document.getElementById('timerDisplay').textContent = 
+                String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+        }
+
+        // 記録管理
+        function updateReceivedTime() {
+            const manualTime = document.getElementById('manualTime').value;
+            if (manualTime) {
+                document.getElementById('receivedTime').textContent = manualTime;
+            }
+        }
+
+        function addCurrentTime() {
+            const timeValue = document.getElementById('receivedTime').textContent;
+            if (timeValue && timeValue !== '00.000') {
+                currentRecordsList.push(parseFloat(timeValue));
+                updateDisplay();
+                saveData();
+                
+                // ラウンド自動更新
+                const currentRound = parseInt(document.getElementById('currentRound').value);
+                if (currentRound < 5) {
+                    document.getElementById('currentRound').value = currentRound + 1;
+                    updateRound();
+                }
+            }
+        }
+
+        function clearCurrentRecords() {
+            if (confirm('現在の記録をすべて削除しますか？')) {
+                currentRecordsList = [];
+                updateDisplay();
+                saveData();
+            }
+        }
+
+        // 表示更新
+        function updateData() {
+            saveData();
+        }
+
+        function updateRound() {
+            const round = document.getElementById('currentRound').value;
+            document.getElementById('roundDisplay').textContent = round + ' / 5';
+            saveData();
+        }
+
+        function updateDisplay() {
+            // 現在の記録表示
+            const recordsContainer = document.getElementById('currentRecords');
+            if (currentRecordsList.length === 0) {
+                recordsContainer.innerHTML = '<div style="text-align: center; color: #718096;">記録がありません</div>';
+            } else {
+                recordsContainer.innerHTML = currentRecordsList.map((time, index) => 
+                    `<div class="record-item">
+                        <span>第${index + 1}走</span>
+                        <span style="font-weight: bold; color: #667eea;">${time.toFixed(3)}秒</span>
+                        <button class="button" onclick="removeRecord(${index})" style="padding: 5px 10px; font-size: 12px;">削除</button>
+                    </div>`
+                ).join('');
+            }
+
+            // ベストタイム表示
+            if (currentRecordsList.length > 0) {
+                const bestTime = Math.min(...currentRecordsList);
+                document.getElementById('currentBestTime').textContent = `ベスト: ${bestTime.toFixed(3)}秒`;
+                
+                // 順位計算
+                calculateCurrentPosition(bestTime);
+            } else {
+                document.getElementById('currentBestTime').textContent = 'ベスト: --.-';
+                document.getElementById('currentPosition').textContent = '-位';
+            }
+
+            updateRankingDisplay();
+        }
+
+        function removeRecord(index) {
+            currentRecordsList.splice(index, 1);
+            updateDisplay();
+            saveData();
+        }
+
+        function calculateCurrentPosition(currentBest) {
+            let position = 1;
+            for (const entry of allRankingData) {
+                if (entry.bestTime < currentBest) {
+                    position++;
+                }
+            }
+            document.getElementById('currentPosition').textContent = position + '位';
+        }
+
+        function updateRanking() {
+            const entryName = document.getElementById('entryName').value || '無名';
+            const entryNumber = document.getElementById('entryNumber').value || '#000';
+            
+            if (currentRecordsList.length === 0) {
+                alert('記録がありません。まず走行記録を追加してください。');
+                return;
+            }
+
+            const bestTime = Math.min(...currentRecordsList);
+            
+            // 既存エントリーを更新または新規追加
+            const existingIndex = allRankingData.findIndex(entry => 
+                entry.name === entryName || entry.number === entryNumber
+            );
+            
+            if (existingIndex >= 0) {
+                allRankingData[existingIndex] = {
+                    name: entryName,
+                    number: entryNumber,
+                    bestTime: bestTime
+                };
+            } else {
+                allRankingData.push({
+                    name: entryName,
+                    number: entryNumber,
+                    bestTime: bestTime
+                });
+            }
+
+            // ソート
+            allRankingData.sort((a, b) => a.bestTime - b.bestTime);
+            
+            updateDisplay();
+            saveData();
+            alert('ランキングを更新しました！');
+        }
+
+        function updateRankingDisplay() {
+            const rankingContainer = document.getElementById('rankingList');
+            if (allRankingData.length === 0) {
+                rankingContainer.innerHTML = '<div style="text-align: center; color: #718096; margin: 20px 0;">ランキングデータがありません</div>';
+                return;
+            }
+
+            const top5 = allRankingData.slice(0, 5);
+            rankingContainer.innerHTML = top5.map((entry, index) => {
+                const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+                return `<div class="ranking-item">
+                    <div>
+                        <span style="font-size: 1.5em;">${medals[index]}</span>
+                        <strong>${entry.name}</strong> (${entry.number})
+                    </div>
+                    <div style="font-size: 1.2em; font-weight: bold; color: #667eea;">
+                        ${entry.bestTime.toFixed(3)}秒
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // 初期表示更新
+        updateTimerDisplay();
+        updateRound();
+    </script>
+</body>
+</html>
