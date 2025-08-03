@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ラジコンタイム計測システム</title>
+    <title>マイクロマウスタイム計測システム</title>
     <style>
         * {
             margin: 0;
@@ -234,7 +234,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🏎️ ラジコンタイム計測システム</h1>
+        <h1>🏎️ マイクロマウス計測システム</h1>
         
         <!-- BLE接続制御 -->
         <div class="ble-control">
@@ -608,7 +608,7 @@
         // CSV関連機能
         async function loadDefaultCSV() {
             try {
-                const response = await fetch('./entries.csv');
+                const response = await fetch('./entry_lists.csv');
                 if (response.ok) {
                     const csvText = await response.text();
                     parseCSV(csvText);
