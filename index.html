@@ -29,145 +29,67 @@
         }
 
         h1 {
-            display: none; /* タイトルを非表示 */
-        }
-
-        .main-display {
             text-align: center;
-            margin-bottom: 20px;
-            padding: 20px;
-            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .main-time {
-            font-size: 5em;
-            font-weight: bold;
-            color: #667eea;
-            margin: 10px 0;
-            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
-        }
-
-        .main-entry {
+            color: #4a5568;
+            margin-bottom: 30px;
             font-size: 2.5em;
-            font-weight: bold;
-            color: #2d3748;
-            margin: 15px 0;
-        }
-
-        .control-panel {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-
-        h1 {
-            display: none; /* タイトルを非表示 */
-        }
-
-        .main-display {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 20px;
-            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .main-time {
-            font-size: 5em;
-            font-weight: bold;
-            color: #667eea;
-            margin: 10px 0;
-            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
-        }
-
-        .main-entry {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #2d3748;
-            margin: 15px 0;
-        }
-
-        .control-panel {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-            height: calc(100vh - 400px);
-            min-height: 400px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
         .card {
             background: white;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             border: 2px solid #e2e8f0;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
         }
 
         .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
         }
 
         .card h2 {
             color: #2d3748;
-            margin-bottom: 10px;
-            font-size: 1.1em;
+            margin-bottom: 15px;
+            font-size: 1.3em;
             border-bottom: 2px solid #667eea;
             padding-bottom: 5px;
         }
 
         input[type="text"], input[type="number"] {
             width: 100%;
-            padding: 8px;
+            padding: 12px;
             border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 14px;
-            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 10px;
             transition: border-color 0.3s ease;
         }
 
         input[type="text"]:focus, input[type="number"]:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
             cursor: pointer;
-            margin: 3px;
+            margin: 5px;
             transition: all 0.3s ease;
             font-weight: bold;
         }
@@ -194,53 +116,49 @@
         }
 
         .timer-display {
-            font-size: 2em;
+            font-size: 3em;
             font-weight: bold;
             text-align: center;
             color: #2d3748;
-            margin: 10px 0;
-            padding: 15px;
+            margin: 20px 0;
+            padding: 20px;
             background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-            border-radius: 10px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .current-time {
-            font-size: 1.8em;
+            font-size: 2.5em;
             font-weight: bold;
             text-align: center;
             color: #667eea;
-            margin: 10px 0;
+            margin: 15px 0;
         }
 
         .round-display {
-            font-size: 1.5em;
+            font-size: 2em;
             font-weight: bold;
             text-align: center;
             color: #38a169;
-            margin: 10px 0;
+            margin: 15px 0;
         }
 
         .records-list {
             background: #f7fafc;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            flex-grow: 1;
-            overflow-y: auto;
-            max-height: 200px;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
         }
 
         .record-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px;
-            margin: 3px 0;
+            padding: 10px;
+            margin: 5px 0;
             background: white;
-            border-radius: 6px;
-            border-left: 3px solid #667eea;
-            font-size: 13px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
         }
 
         .record-item.retired {
@@ -252,12 +170,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            margin: 8px 0;
+            padding: 15px;
+            margin: 10px 0;
             background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-            border-radius: 8px;
-            border-left: 4px solid #ffd700;
-            font-size: 14px;
+            border-radius: 10px;
+            border-left: 5px solid #ffd700;
         }
 
         .ranking-item:nth-child(1) { border-left-color: #ffd700; }
@@ -290,58 +207,28 @@
         }
 
         .best-time {
-            font-size: 1.2em;
+            font-size: 1.5em;
             font-weight: bold;
             color: #e53e3e;
             text-align: center;
-            margin: 8px 0;
+            margin: 10px 0;
         }
 
         .position {
-            font-size: 1.5em;
+            font-size: 1.8em;
             font-weight: bold;
             color: #ffd700;
             text-align: center;
-            margin: 8px 0;
+            margin: 10px 0;
         }
 
         .auto-record-indicator {
             background: #38a169;
             color: white;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            margin-left: 8px;
-        }
-
-        .ranking-card {
-            grid-column: span 4;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        @media (max-width: 1200px) {
-            .grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            .ranking-card {
-                grid-column: span 3;
-            }
-        }
-        
-        @media (max-width: 900px) {
-            .grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .ranking-card {
-                grid-column: span 2;
-            }
-            .main-time {
-                font-size: 4em;
-            }
-            .main-entry {
-                font-size: 2em;
-            }
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 10px;
         }
 
         @media (max-width: 768px) {
@@ -351,58 +238,34 @@
             
             .grid {
                 grid-template-columns: 1fr;
-                height: auto;
             }
             
-            .ranking-card {
-                grid-column: span 1;
+            .timer-display {
+                font-size: 2em;
             }
             
-            .main-time {
-                font-size: 3em;
-            }
-            
-            .main-entry {
-                font-size: 1.5em;
-            }
-            
-            .control-panel {
-                flex-direction: column;
-                gap: 5px;
+            .current-time {
+                font-size: 1.8em;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- メイン表示エリア -->
-        <div class="main-display">
-            <div class="main-time" id="mainReceivedTime">00.000</div>
-            <div class="main-entry" id="mainEntryInfo">エントリー準備中</div>
-            <div style="text-align: center; margin: 10px 0;">
-                <span style="font-size: 14px; color: #718096;">リアルタイム表示:</span>
-                <div id="mainRealtimeTimer" style="font-size: 1.8em; font-weight: bold; color: #38a169; margin-top: 5px;">待機中</div>
-            </div>
-        </div>
-
-        <!-- コントロールパネル -->
-        <div class="control-panel">
+        <h1>🏎️ マイクロマウスタイム計測システム</h1>
+        
+        <!-- BLE接続制御 -->
+        <div class="ble-control">
             <button class="button" onclick="connectBLE()">📡 BLE接続</button>
             <button class="button danger" onclick="disconnectBLE()">🔌 切断</button>
             <span class="connection-status disconnected" id="connectionStatus">未接続</span>
-            
+        </div>
+
+        <!-- エントリー管理 -->
+        <div class="ble-control">
             <button class="button success" onclick="loadNextEntry()">👥 次のエントリー者へ</button>
             <button class="button" onclick="loadCSV()">📄 CSVファイル読み込み</button>
             <input type="file" id="csvFile" accept=".csv" style="display: none;" onchange="handleCSVFile(event)">
-            
-            <button class="button success" onclick="addCurrentTime()">📝 記録追加</button>
-            <button class="button warning" onclick="addRetiredRecord()">❌ リタイア (R)</button>
-            
-            <label style="font-size: 13px;">
-                <input type="checkbox" id="autoRecordMode" onchange="toggleAutoRecord()">
-                自動記録モード
-            </label>
-            <span id="autoRecordIndicator" class="auto-record-indicator" style="display: none;">自動記録ON</span>
         </div>
 
         <div class="grid">
@@ -426,6 +289,29 @@
                 </div>
             </div>
 
+            <!-- 計測タイム -->
+            <div class="card">
+                <h2>🏁 計測タイム</h2>
+                <div class="current-time" id="receivedTime">00.000</div>
+                <div style="text-align: center; margin: 10px 0;">
+                    <span style="font-size: 14px; color: #718096;">リアルタイム表示:</span>
+                    <div id="realtimeTimer" style="font-size: 1.5em; font-weight: bold; color: #38a169;">待機中</div>
+                </div>
+                <label>手動入力:</label>
+                <input type="text" id="manualTime" placeholder="例: 12.345" oninput="updateReceivedTime()">
+                <div style="text-align: center;">
+                    <button class="button success" onclick="addCurrentTime()">📝 記録追加</button>
+                    <button class="button warning" onclick="addRetiredRecord()">❌ リタイア (R)</button>
+                </div>
+                <div style="text-align: center; margin-top: 10px;">
+                    <label>
+                        <input type="checkbox" id="autoRecordMode" onchange="toggleAutoRecord()">
+                        計測結果自動記録モード
+                    </label>
+                    <span id="autoRecordIndicator" class="auto-record-indicator" style="display: none;">自動記録ON</span>
+                </div>
+            </div>
+
             <!-- ラウンド数 -->
             <div class="card">
                 <h2>🔢 ラウンド情報</h2>
@@ -434,33 +320,25 @@
                 <input type="number" id="currentRound" value="1" min="1" max="5" oninput="updateRound()">
             </div>
 
-            <!-- 順位・ベストタイム -->
-            <div class="card">
-                <h2>🏆 現在走者の成績</h2>
-                <div class="position" id="currentPosition">-位</div>
-                <div class="best-time" id="currentBestTime">ベスト: --.-</div>
-            </div>
-
             <!-- 現在走者の記録 -->
             <div class="card">
                 <h2>📊 現在走者の記録</h2>
                 <div class="records-list" id="currentRecords">
                     <div style="text-align: center; color: #718096;">記録がありません</div>
                 </div>
-                <button class="button danger" onclick="clearCurrentRecords()" style="width: 100%;">🗑️ 記録クリア</button>
+                <button class="button danger" onclick="clearCurrentRecords()">🗑️ 記録クリア</button>
             </div>
 
-            <!-- 手動入力 -->
+            <!-- 順位・ベストタイム -->
             <div class="card">
-                <h2>✏️ 手動入力</h2>
-                <label>タイム入力:</label>
-                <input type="text" id="manualTime" placeholder="例: 12.345" oninput="updateReceivedTime()">
-                <div class="current-time" id="receivedTime">00.000</div>
+                <h2>🏆 現在走者の成績</h2>
+                <div class="position" id="currentPosition">-位</div>
+                <div class="best-time" id="currentBestTime">ベスト: --.-</div>
             </div>
         </div>
 
         <!-- ランキング -->
-        <div class="card ranking-card">
+        <div class="card">
             <h2>🥇 総合ランキング (1位〜5位)</h2>
             <div style="text-align: center; margin-bottom: 15px;">
                 <button class="button success" onclick="updateRanking()">🔄 ランキング更新</button>
@@ -531,7 +409,6 @@
                 toggleAutoRecord();
             }
             updateDisplay();
-            updateMainDisplay();
         }
 
         // BLE接続
@@ -676,7 +553,6 @@
                 
                 // 計測タイムをリセット
                 document.getElementById('receivedTime').textContent = '00.000';
-                document.getElementById('mainReceivedTime').textContent = '00.000';
                 document.getElementById('manualTime').value = '';
             }
         }
@@ -703,7 +579,6 @@
                 
                 // 計測タイムをリセット
                 document.getElementById('receivedTime').textContent = '00.000';
-                document.getElementById('mainReceivedTime').textContent = '00.000';
                 document.getElementById('manualTime').value = '';
                 
                 console.log(`第${currentRound}走のタイムを自動記録: ${timeValue}秒`);
@@ -930,7 +805,6 @@
                 const currentTime = performance.now();
                 const elapsedSeconds = (currentTime - measurementStartTime) / 1000;
                 document.getElementById('realtimeTimer').textContent = elapsedSeconds.toFixed(3) + '秒';
-                document.getElementById('mainRealtimeTimer').textContent = elapsedSeconds.toFixed(3) + '秒';
                 
                 // requestAnimationFrameで次の更新をスケジュール（最高速）
                 if (isMeasuring) {
@@ -1020,7 +894,6 @@
                 const entry = entryList[currentEntryIndex];
                 document.getElementById('entryNumber').value = entry.number;
                 document.getElementById('entryName').value = entry.name;
-                updateMainDisplay();
             }
         }
 
@@ -1055,30 +928,12 @@
             
             // 計測タイムをリセット
             document.getElementById('receivedTime').textContent = '00.000';
-            document.getElementById('mainReceivedTime').textContent = '00.000';
             document.getElementById('manualTime').value = '';
-            
-            // リアルタイムタイマーをリセット
-            document.getElementById('realtimeTimer').textContent = '待機中';
-            document.getElementById('realtimeTimer').style.color = '#38a169';
-            document.getElementById('mainRealtimeTimer').textContent = '待機中';
-            document.getElementById('mainRealtimeTimer').style.color = '#38a169';
             
             // 表示を更新
             updateDisplay();
             updateRound();
-            updateMainDisplay();
         }
-
-        // 初期化時にメイン表示も更新
-        document.addEventListener('DOMContentLoaded', function() {
-            loadSavedData();
-            loadDefaultCSV();
-            updateDisplay();
-            updateMainDisplay();
-            updateTimerDisplay();
-            updateRound();
-        });
     </script>
 </body>
 </html>
