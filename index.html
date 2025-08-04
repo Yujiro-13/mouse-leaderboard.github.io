@@ -234,7 +234,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🏎️ マイクロマウス計測システム</h1>
+        <h1>🏎️ マイクロマウスタイム計測システム</h1>
         
         <!-- BLE接続制御 -->
         <div class="ble-control">
@@ -275,6 +275,10 @@
             <div class="card">
                 <h2>🏁 計測タイム</h2>
                 <div class="current-time" id="receivedTime">00.000</div>
+                <div style="text-align: center; margin: 10px 0;">
+                    <span style="font-size: 14px; color: #718096;">リアルタイム表示:</span>
+                    <div id="realtimeTimer" style="font-size: 1.5em; font-weight: bold; color: #38a169;">待機中</div>
+                </div>
                 <label>手動入力:</label>
                 <input type="text" id="manualTime" placeholder="例: 12.345" oninput="updateReceivedTime()">
                 <button class="button success" onclick="addCurrentTime()">📝 記録追加</button>
@@ -322,6 +326,11 @@
         let timerInterval = null;
         let timerSeconds = 300; // 5分 = 300秒
         let isTimerRunning = false;
+        
+        // リアルタイム計測タイマー
+        let measurementTimer = null;
+        let measurementStartTime = 0;
+        let isMeasuring = false;
         
         // データ保存用
         let currentRecordsList = [];
@@ -406,11 +415,27 @@
             const value = new TextDecoder().decode(event.target.value);
             console.log('BLEデータ受信:', value);
             
-            // タイムデータの形式を想定 (例: "TIME:12.345")
-            if (value.startsWith('TIME:')) {
+            if (value === 'START') {
+                // ESP32からスタート信号受信 - リアルタイム計測開始
+                startRealTimeMeasurement();
+            } else if (value.startsWith('TIME:')) {
+                // タイムデータの形式 (例: "TIME:12.345")
                 const timeValue = value.replace('TIME:', '');
+                // ESP32の計測タイムを優先して表示
                 document.getElementById('receivedTime').textContent = timeValue;
                 document.getElementById('manualTime').value = timeValue;
+                
+                // リアルタイム計測を停止してESP32のタイムと同期
+                stopRealTimeMeasurement();
+                document.getElementById('realtimeTimer').textContent = timeValue + '秒 (確定)';
+                document.getElementById('realtimeTimer').style.color = '#e53e3e';
+                
+                console.log('ESP32計測タイム確定:', timeValue);
+            } else if (value === 'READY') {
+                // ESP32がリセット完了
+                document.getElementById('realtimeTimer').textContent = '待機中';
+                document.getElementById('realtimeTimer').style.color = '#38a169';
+                console.log('ESP32リセット完了');
             }
         }
 
@@ -605,10 +630,55 @@
         updateTimerDisplay();
         updateRound();
 
+        // リアルタイム計測機能
+        function startRealTimeMeasurement() {
+            measurementStartTime = performance.now(); // 高精度タイマー
+            isMeasuring = true;
+            
+            // より高速な更新を実現（複数の方法を併用）
+            updateRealTimeDisplay(); // 即座に開始
+            
+            // 補助的に高速setTimeoutも併用（可能な限り高速化）
+            if (measurementTimer) clearTimeout(measurementTimer);
+            fastUpdate();
+            
+            console.log('Web側リアルタイム計測開始');
+        }
+
+        function fastUpdate() {
+            if (isMeasuring) {
+                updateRealTimeDisplay();
+                // 1ms指定（実際は4-5msになる）
+                measurementTimer = setTimeout(fastUpdate, 1);
+            }
+        }
+
+        function stopRealTimeMeasurement() {
+            isMeasuring = false;
+            if (measurementTimer) {
+                clearTimeout(measurementTimer);
+                measurementTimer = null;
+            }
+            console.log('Web側リアルタイム計測停止');
+        }
+
+        function updateRealTimeDisplay() {
+            if (isMeasuring && measurementStartTime) {
+                const currentTime = performance.now();
+                const elapsedSeconds = (currentTime - measurementStartTime) / 1000;
+                document.getElementById('realtimeTimer').textContent = elapsedSeconds.toFixed(3) + '秒';
+                
+                // requestAnimationFrameで次の更新をスケジュール（最高速）
+                if (isMeasuring) {
+                    requestAnimationFrame(updateRealTimeDisplay);
+                }
+            }
+        }
+
         // CSV関連機能
         async function loadDefaultCSV() {
             try {
-                const response = await fetch('entry_lists.csv');
+                const response = await fetch('./entry_lists.csv');
                 if (response.ok) {
                     const csvText = await response.text();
                     parseCSV(csvText);
