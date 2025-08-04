@@ -942,7 +942,7 @@
         // CSV関連機能
         async function loadDefaultCSV() {
             try {
-                const response = await fetch('/entry_lists.csv');
+                const response = await fetch('entry_lists.csv');
                 if (response.ok) {
                     const csvText = await response.text();
                     parseCSV(csvText);
