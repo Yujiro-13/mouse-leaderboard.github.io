@@ -209,7 +209,7 @@ function updateReceivedTime() {
 
 function addCurrentTime() {
     const timeValue = document.getElementById('receivedTime').textContent;
-    if (timeValue && timeValue !== '00.000') {
+    if (timeValue && timeValue !== '00.000' && timeValue !== '未記録') {
         const currentRound = parseInt(document.getElementById('currentRound').value);
         currentRecordsList.push({
             round: currentRound,
@@ -226,8 +226,8 @@ function addCurrentTime() {
             updateRound();
         }
         
-        // 計測タイムをリセット
-        document.getElementById('receivedTime').textContent = '00.000';
+        // 前回結果は次回のゴール時まで保持（リセットしない）
+        // manualTimeのみクリア
         document.getElementById('manualTime').value = '';
     }
 }
@@ -235,7 +235,7 @@ function addCurrentTime() {
 // 自動記録用の関数（通知なし）
 function addCurrentTimeAuto() {
     const timeValue = document.getElementById('receivedTime').textContent;
-    if (timeValue && timeValue !== '00.000') {
+    if (timeValue && timeValue !== '00.000' && timeValue !== '未記録') {
         const currentRound = parseInt(document.getElementById('currentRound').value);
         currentRecordsList.push({
             round: currentRound,
@@ -252,8 +252,8 @@ function addCurrentTimeAuto() {
             updateRound();
         }
         
-        // 計測タイムをリセット
-        document.getElementById('receivedTime').textContent = '00.000';
+        // 前回結果は次回のゴール時まで保持（リセットしない）
+        // manualTimeのみクリア
         document.getElementById('manualTime').value = '';
         
         console.log(`第${currentRound}走のタイムを自動記録: ${timeValue}秒`);
