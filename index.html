@@ -1,76 +1,80 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>マイクロマウスタイム計測システム</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="container">
-        <h1>🏎️ マイクロマウスタイム計測システム</h1>
-        
-        <!-- BLE接続制御 -->
-        <div class="ble-control">
-            <button class="button" onclick="connectBLE()">📡 BLE接続</button>
-            <button class="button danger" onclick="disconnectBLE()">🔌 切断</button>
-            <span class="connection-status disconnected" id="connectionStatus">未接続</span>
-        </div>
+        <h1>マイクロマウスタイム計測システム</h1>
 
-        <!-- エントリー管理 -->
-        <div class="ble-control">
-            <button class="button success" onclick="loadNextEntry()">👥 次のエントリー者へ</button>
-            <button class="button" onclick="loadCSV()">📄 CSVファイル読み込み</button>
-            <input type="file" id="csvFile" accept=".csv" style="display: none;" onchange="handleCSVFile(event)">
-        </div>
 
-        <div class="grid">
+
+        <!-- エントリー情報・計測タイム -->
+        <div class="grid-main">
             <!-- エントリー情報 -->
             <div class="card">
-                <h2>👤 エントリー情報</h2>
+                <h2>エントリー情報</h2>
                 <label>エントリーナンバー:</label>
                 <input type="text" id="entryNumber" placeholder="例: #001" oninput="updateData()">
                 <label>エントリー名:</label>
                 <input type="text" id="entryName" placeholder="例: 田中太郎" oninput="updateData()">
             </div>
 
+            <!-- 計測タイム -->
+            <div class="card measurement-card">
+                <h2></h2>
+                
+                <!-- メイン表示エリア -->
+                <div class="measurement-main">
+                    <div class="current-time" id="receivedTime">00.000</div>
+                    <div style="text-align: center; margin: 5px 0;">
+                        <span style="font-size: 12px; color: #718096;">リアルタイム表示</span>
+                    </div>
+                    <div id="realtimeTimer" class="realtime-display">待機中</div>
+                </div>
+                
+                <!-- コントロールエリア -->
+                <div class="measurement-controls">
+                    <div class="control-row">
+                        <label>手動入力:</label>
+                        <input type="text" id="manualTime" placeholder="例: 12.345" oninput="updateReceivedTime()">
+                    </div>
+                    
+                    <div class="control-actions">
+                        <button class="button success" onclick="addCurrentTime()">記録追加</button>
+                        <button class="button warning" onclick="addRetiredRecord()">リタイア</button>
+                    </div>
+                    
+                    <div class="auto-record-section">
+                        <input type="checkbox" id="autoRecordMode" onchange="toggleAutoRecord()">
+                        <label>結果自動記録</label>
+                        <span id="autoRecordIndicator" class="auto-record-indicator" style="display: none;">自動記録ON</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- その他の機能 -->
+        <div class="grid-secondary">
             <!-- タイマー -->
             <div class="card">
-                <h2>⏰ 5分タイマー</h2>
+                <h2>持ち時間</h2>
                 <div class="timer-display" id="timerDisplay">05:00</div>
                 <div style="text-align: center;">
-                    <button class="button success" onclick="startTimer()">▶️ スタート</button>
-                    <button class="button danger" onclick="stopTimer()">⏸️ ストップ</button>
-                    <button class="button" onclick="resetTimer()">🔄 リセット</button>
+                    <button class="button success" onclick="startTimer()">スタート</button>
+                    <button class="button danger" onclick="stopTimer()">ストップ</button>
+                    <button class="button" onclick="resetTimer()">リセット</button>
                 </div>
             </div>
 
-            <!-- 計測タイム -->
+            <!-- 走行回数 -->
             <div class="card">
-                <h2>🏁 計測タイム</h2>
-                <div class="current-time" id="receivedTime">00.000</div>
-                <div style="text-align: center; margin: 10px 0;">
-                    <span style="font-size: 14px; color: #718096;">リアルタイム表示:</span>
-                    <div id="realtimeTimer" style="font-size: 1.5em; font-weight: bold; color: #38a169;">待機中</div>
-                </div>
-                <label>手動入力:</label>
-                <input type="text" id="manualTime" placeholder="例: 12.345" oninput="updateReceivedTime()">
-                <div style="text-align: center;">
-                    <button class="button success" onclick="addCurrentTime()">📝 記録追加</button>
-                    <button class="button warning" onclick="addRetiredRecord()">❌ リタイア (R)</button>
-                </div>
-                <div style="text-align: center; margin-top: 10px;">
-                    <label>
-                        <input type="checkbox" id="autoRecordMode" onchange="toggleAutoRecord()">
-                        計測結果自動記録モード
-                    </label>
-                    <span id="autoRecordIndicator" class="auto-record-indicator" style="display: none;">自動記録ON</span>
-                </div>
-            </div>
-
-            <!-- ラウンド数 -->
-            <div class="card">
-                <h2>🔢 ラウンド情報</h2>
+                <h2>走行回数</h2>
                 <div class="round-display" id="roundDisplay">1 / 5</div>
                 <label>現在のラウンド:</label>
                 <input type="number" id="currentRound" value="1" min="1" max="5" oninput="updateRound()">
@@ -78,34 +82,55 @@
 
             <!-- 現在走者の記録 -->
             <div class="card">
-                <h2>📊 現在走者の記録</h2>
+                <h2>現在走者の記録</h2>
                 <div class="records-list" id="currentRecords">
                     <div style="text-align: center; color: #718096;">記録がありません</div>
                 </div>
-                <button class="button danger" onclick="clearCurrentRecords()">🗑️ 記録クリア</button>
+                <button class="button danger" onclick="clearCurrentRecords()">記録クリア</button>
             </div>
 
             <!-- 順位・ベストタイム -->
             <div class="card">
-                <h2>🏆 現在走者の成績</h2>
+                <h2>現在走者の成績</h2>
                 <div class="position" id="currentPosition">-位</div>
                 <div class="best-time" id="currentBestTime">ベスト: --.-</div>
             </div>
+            <!-- ランキング -->
+            <div class="card">
+                <h2>ランキング (1位〜5位)</h2>
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <button class="button success" onclick="updateRanking()">ランキング更新</button>
+                    <button class="button danger" onclick="clearRanking()">クリア</button>
+                </div>
+                <div id="rankingList">
+                    <div style="text-align: center; color: #718096; margin: 20px 0;">ランキングデータがありません</div>
+                </div>
+            </div>
+            <!-- BLE接続制御・エントリー管理 -->
+            <div class="grid-controls">
+                <!-- BLE接続制御 -->
+                <div class="ble-control">
+                    <button class="button" onclick="connectBLE()">接続</button>
+                    <button class="button danger" onclick="disconnectBLE()">切断</button>
+                    <span class="connection-status disconnected" id="connectionStatus">未接続</span>
+                </div>
+
+                <!-- エントリー管理 -->
+                <div class="ble-control">
+                    <button class="button success" onclick="loadNextEntry()">次のエントリー者へ</button>
+                    <button class="button" onclick="loadCSV()">ファイル読み込み</button>
+                    <input type="file" id="csvFile" accept=".csv" style="display: none;"
+                        onchange="handleCSVFile(event)">
+                </div>
+            </div>
         </div>
 
-        <!-- ランキング -->
-        <div class="card">
-            <h2>🥇 総合ランキング (1位〜5位)</h2>
-            <div style="text-align: center; margin-bottom: 15px;">
-                <button class="button success" onclick="updateRanking()">🔄 ランキング更新</button>
-                <button class="button danger" onclick="clearRanking()">🗑️ ランキングクリア</button>
-            </div>
-            <div id="rankingList">
-                <div style="text-align: center; color: #718096; margin: 20px 0;">ランキングデータがありません</div>
-            </div>
-        </div>
+
+
+
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>
