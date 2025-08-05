@@ -163,7 +163,7 @@ input[type="text"]:focus, input[type="number"]:focus {
 }
 
 .realtime-display {
-    font-size: 6em !important;
+    font-size: 7em !important;
     font-weight: bold !important;
     color: #38a169 !important;
     margin: 20px 0 !important;
@@ -371,7 +371,7 @@ input[type="text"]:focus, input[type="number"]:focus {
     }
     
     .realtime-display {
-        font-size: 2.5em !important;
+        font-size: 5em !important;
     }
     
     .measurement-card {
