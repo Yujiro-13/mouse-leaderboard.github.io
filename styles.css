@@ -159,6 +159,7 @@ input[type="text"]:focus, input[type="number"]:focus {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 .realtime-display {
@@ -167,6 +168,19 @@ input[type="text"]:focus, input[type="number"]:focus {
     color: #38a169 !important;
     margin: 20px 0 !important;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.previous-result {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    text-align: right;
+}
+
+.previous-result .current-time {
+    font-size: 1.2em;
+    margin: 5px 0;
+    color: #667eea;
 }
 
 .measurement-controls {

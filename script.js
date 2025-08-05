@@ -110,14 +110,13 @@ function handleBLEData(event) {
     } else if (value.startsWith('TIME:')) {
         // タイムデータの形式 (例: "TIME:12.345")
         const timeValue = value.replace('TIME:', '');
-        // ESP32の計測タイムを優先して表示
+        
+        // 前回結果として表示（receivedTime）
         document.getElementById('receivedTime').textContent = timeValue;
         document.getElementById('manualTime').value = timeValue;
         
-        // リアルタイム計測を停止してESP32のタイムと同期
+        // リアルタイム計測を停止（realtimeTimerは更新しない）
         stopRealTimeMeasurement();
-        document.getElementById('realtimeTimer').textContent = timeValue;
-        document.getElementById('realtimeTimer').style.color = '#e53e3e';
         
         // 自動記録モードの場合、自動で記録追加
         if (autoRecordMode) {
@@ -128,7 +127,7 @@ function handleBLEData(event) {
         
         console.log('ESP32計測タイム確定:', timeValue);
     } else if (value === 'READY') {
-        // ESP32がリセット完了
+        // ESP32がリセット完了 - 新しい走行準備
         document.getElementById('realtimeTimer').textContent = '待機中';
         document.getElementById('realtimeTimer').style.color = '#38a169';
         console.log('ESP32リセット完了');
@@ -606,8 +605,8 @@ function resetCurrentEntryData() {
     // タイマーをリセット
     resetTimer();
     
-    // 計測タイムをリセット
-    document.getElementById('receivedTime').textContent = '00.000';
+    // 計測タイムをリセット（前回の結果を「未記録」表示）
+    document.getElementById('receivedTime').textContent = '未記録';
     document.getElementById('manualTime').value = '';
     
     // 表示を更新
