@@ -31,6 +31,7 @@ function saveData() {
     const data = {
         entryNumber: document.getElementById('entryNumber').value,
         entryName: document.getElementById('entryName').value,
+        robotName: document.getElementById('robotName').value,
         currentRound: document.getElementById('currentRound').value,
         currentRecords: currentRecordsList,
         rankingData: allRankingData,
@@ -46,6 +47,7 @@ function loadSavedData() {
     const saved = JSON.parse(localStorage.getItem('racingData') || '{}');
     if (saved.entryNumber) document.getElementById('entryNumber').value = saved.entryNumber;
     if (saved.entryName) document.getElementById('entryName').value = saved.entryName;
+    if (saved.robotName) document.getElementById('robotName').value = saved.robotName;
     if (saved.currentRound) document.getElementById('currentRound').value = saved.currentRound;
     if (saved.currentRecords) currentRecordsList = saved.currentRecords;
     if (saved.entryList) entryList = saved.entryList;
@@ -366,6 +368,7 @@ function calculateCurrentPosition(currentBest) {
 function updateRanking() {
     const entryName = document.getElementById('entryName').value || '無名';
     const entryNumber = document.getElementById('entryNumber').value || '#000';
+    const robotName = document.getElementById('robotName').value || 'ロボット';
     
     const validTimes = currentRecordsList.filter(record => record.type === 'time').map(record => record.time);
     if (validTimes.length === 0) {
@@ -384,12 +387,14 @@ function updateRanking() {
         allRankingData[existingIndex] = {
             name: entryName,
             number: entryNumber,
+            robotName: robotName,
             bestTime: bestTime
         };
     } else {
         allRankingData.push({
             name: entryName,
             number: entryNumber,
+            robotName: robotName,
             bestTime: bestTime
         });
     }
@@ -421,10 +426,13 @@ function updateRankingDisplay() {
     const top5 = allRankingData.slice(0, 5);
     rankingContainer.innerHTML = top5.map((entry, index) => {
         const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+        const displayName = entry.robotName ? 
+            `<strong>${entry.robotName}</strong> (${entry.name})` : 
+            `<strong>${entry.name}</strong> (${entry.number})`;
         return `<div class="ranking-item">
             <div>
                 <span style="font-size: 1.5em;">${medals[index]}</span>
-                <strong>${entry.name}</strong> (${entry.number})
+                ${displayName}
             </div>
             <div style="font-size: 1.2em; font-weight: bold; color: #667eea;">
                 ${entry.bestTime.toFixed(3)}秒
@@ -495,11 +503,11 @@ async function loadDefaultCSV() {
             console.log('デフォルトCSVファイルが見つかりません');
             // デフォルトエントリーを設定
             entryList = [
-                { number: '#001', name: 'エントリー1' },
-                { number: '#002', name: 'エントリー2' },
-                { number: '#003', name: 'エントリー3' },
-                { number: '#004', name: 'エントリー4' },
-                { number: '#005', name: 'エントリー5' }
+                { number: '#001', name: 'エントリー1', robotName: 'ロボット1' },
+                { number: '#002', name: 'エントリー2', robotName: 'ロボット2' },
+                { number: '#003', name: 'エントリー3', robotName: 'ロボット3' },
+                { number: '#004', name: 'エントリー4', robotName: 'ロボット4' },
+                { number: '#005', name: 'エントリー5', robotName: 'ロボット5' }
             ];
             setCurrentEntry();
         }
@@ -507,11 +515,11 @@ async function loadDefaultCSV() {
         console.error('CSVファイル読み込みエラー:', error);
         // デフォルトエントリーを設定
         entryList = [
-            { number: '#001', name: 'エントリー1' },
-            { number: '#002', name: 'エントリー2' },
-            { number: '#003', name: 'エントリー3' },
-            { number: '#004', name: 'エントリー4' },
-            { number: '#005', name: 'エントリー5' }
+            { number: '#001', name: 'エントリー1', robotName: 'ロボット1' },
+            { number: '#002', name: 'エントリー2', robotName: 'ロボット2' },
+            { number: '#003', name: 'エントリー3', robotName: 'ロボット3' },
+            { number: '#004', name: 'エントリー4', robotName: 'ロボット4' },
+            { number: '#005', name: 'エントリー5', robotName: 'ロボット5' }
         ];
         setCurrentEntry();
     }
@@ -548,7 +556,8 @@ function parseCSV(csvText) {
             if (columns.length >= 2) {
                 entryList.push({
                     number: columns[0],
-                    name: columns[1]
+                    name: columns[1],
+                    robotName: columns[2] || '' // 3列目があればロボット名、なければ空文字
                 });
             }
         }
@@ -564,6 +573,7 @@ function setCurrentEntry() {
         const entry = entryList[currentEntryIndex];
         document.getElementById('entryNumber').value = entry.number;
         document.getElementById('entryName').value = entry.name;
+        document.getElementById('robotName').value = entry.robotName || '';
     }
 }
 
