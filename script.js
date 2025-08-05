@@ -133,7 +133,7 @@ function handleBLEData(event) {
         console.log('ESP32計測タイム確定:', timeValue);
     } else if (value === 'READY') {
         // ESP32がリセット完了 - 新しい走行準備
-        document.getElementById('realtimeTimer').textContent = '待機中';
+        document.getElementById('realtimeTimer').textContent = '00.000';
         document.getElementById('realtimeTimer').style.color = '#38a169';
         console.log('ESP32リセット完了');
     }
@@ -486,7 +486,7 @@ function updateRealTimeDisplay() {
     if (isMeasuring && measurementStartTime) {
         const currentTime = performance.now();
         const elapsedSeconds = (currentTime - measurementStartTime) / 1000;
-        document.getElementById('realtimeTimer').textContent = elapsedSeconds.toFixed(3) + '秒';
+        document.getElementById('realtimeTimer').textContent = elapsedSeconds.toFixed(3);
         
         // requestAnimationFrameで次の更新をスケジュール（最高速）
         if (isMeasuring) {
