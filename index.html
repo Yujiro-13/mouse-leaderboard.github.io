@@ -53,7 +53,7 @@
                     <div class="auto-record-section">
                         <input type="checkbox" id="autoRecordMode" onchange="toggleAutoRecord()">
                         <label>結果自動記録</label>
-                        <span id="autoRecordIndicator" class="auto-record-indicator" style="display: none;">自動記録ON</span>
+                        <span id="autoRecordIndicator" class="auto-record-indicator" style="display: none;">ON</span>
                     </div>
                 </div>
             </div>
@@ -66,8 +66,7 @@
                 <h2>持ち時間</h2>
                 <div class="timer-display" id="timerDisplay">05:00</div>
                 <div style="text-align: center;">
-                    <button class="button success" onclick="startTimer()">スタート</button>
-                    <button class="button danger" onclick="stopTimer()">ストップ</button>
+                    <button class="button success" id="toggleTimerBtn" onclick="toggleTimer()">スタート</button>
                     <button class="button" onclick="resetTimer()">リセット</button>
                 </div>
             </div>

@@ -134,10 +134,19 @@ function handleBLEData(event) {
 }
 
 // タイマー機能
+function toggleTimer() {
+    if (isTimerRunning) {
+        stopTimer();
+    } else {
+        startTimer();
+    }
+}
+
 function startTimer() {
     if (!isTimerRunning) {
         isTimerRunning = true;
         timerInterval = setInterval(updateTimer, 1000);
+        updateTimerButton();
     }
 }
 
@@ -146,12 +155,14 @@ function stopTimer() {
     if (timerInterval) {
         clearInterval(timerInterval);
     }
+    updateTimerButton();
 }
 
 function resetTimer() {
     stopTimer();
     timerSeconds = 300;
     updateTimerDisplay();
+    updateTimerButton();
 }
 
 function updateTimer() {
@@ -169,6 +180,17 @@ function updateTimerDisplay() {
     const seconds = timerSeconds % 60;
     document.getElementById('timerDisplay').textContent = 
         String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+}
+
+function updateTimerButton() {
+    const toggleBtn = document.getElementById('toggleTimerBtn');
+    if (isTimerRunning) {
+        toggleBtn.textContent = 'ストップ';
+        toggleBtn.className = 'button danger';
+    } else {
+        toggleBtn.textContent = 'スタート';
+        toggleBtn.className = 'button success';
+    }
 }
 
 // 記録管理
@@ -413,6 +435,7 @@ function updateRankingDisplay() {
 
 // 初期表示更新
 updateTimerDisplay();
+updateTimerButton();
 updateRound();
 
 // リアルタイム計測機能
