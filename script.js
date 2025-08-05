@@ -116,7 +116,7 @@ function handleBLEData(event) {
         
         // リアルタイム計測を停止してESP32のタイムと同期
         stopRealTimeMeasurement();
-        document.getElementById('realtimeTimer').textContent = timeValue + '秒 (確定)';
+        document.getElementById('realtimeTimer').textContent = timeValue;
         document.getElementById('realtimeTimer').style.color = '#e53e3e';
         
         // 自動記録モードの場合、自動で記録追加
