@@ -107,16 +107,21 @@ function handleBLEData(event) {
     if (value === 'START') {
         // ESP32からスタート信号受信 - リアルタイム計測開始
         startRealTimeMeasurement();
+        console.log('ESP32計測開始');
     } else if (value.startsWith('TIME:')) {
         // タイムデータの形式 (例: "TIME:12.345")
         const timeValue = value.replace('TIME:', '');
         
+        // リアルタイム計測を停止
+        stopRealTimeMeasurement();
+        
+        // ESP32のタイムでリアルタイムタイマーを上書き（最終確定値）
+        document.getElementById('realtimeTimer').textContent = timeValue;
+        document.getElementById('realtimeTimer').style.color = '#e53e3e';
+        
         // 前回結果として表示（receivedTime）
         document.getElementById('receivedTime').textContent = timeValue;
         document.getElementById('manualTime').value = timeValue;
-        
-        // リアルタイム計測を停止（realtimeTimerは更新しない）
-        stopRealTimeMeasurement();
         
         // 自動記録モードの場合、自動で記録追加
         if (autoRecordMode) {
