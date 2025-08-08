@@ -429,7 +429,7 @@ function updateRankingDisplay() {
 
     const top5 = allRankingData.slice(0, 5);
     rankingContainer.innerHTML = top5.map((entry, index) => {
-        const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+        const medals = ['1. ', '2. ', '3. ', '4. ', '5. '];
         const displayName = entry.robotName ? 
             `<strong>${entry.robotName}</strong> (${entry.name})` : 
             `<strong>${entry.name}</strong> (${entry.number})`;
