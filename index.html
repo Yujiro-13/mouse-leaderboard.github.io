@@ -96,6 +96,7 @@
                 </div>
                 <button class="button danger" onclick="clearCurrentRecords()">記録クリア</button>
             </div>
+            
             <!-- ランキング -->
             <div class="card">
                 <h2>ランキング (1位〜5位)</h2>
@@ -107,21 +108,24 @@
                     <div style="text-align: center; color: #718096; margin: 20px 0;">ランキングデータがありません</div>
                 </div>
             </div>
-            <!-- BLE接続制御・エントリー管理 -->
-            <div class="grid-controls">
-                <!-- BLE接続制御 -->
-                <div class="ble-control">
-                    <button class="button" onclick="connectBLE()">接続</button>
-                    <button class="button danger" onclick="disconnectBLE()">切断</button>
-                    <span class="connection-status disconnected" id="connectionStatus">未接続</span>
-                </div>
 
-                <!-- エントリー管理 -->
-                <div class="ble-control">
-                    <button class="button success" onclick="loadNextEntry()">次のエントリー者へ</button>
-                    <button class="button" onclick="loadCSV()">ファイル読み込み</button>
-                    <input type="file" id="csvFile" accept=".csv" style="display: none;"
-                        onchange="handleCSVFile(event)">
+            <!-- BLE接続制御・エントリー管理 -->
+            <div class="card">
+                <div class="grid-controls">
+                    <!-- BLE接続制御 -->
+                    <div class="ble-control">
+                        <button class="button" onclick="connectBLE()">接続</button>
+                        <button class="button danger" onclick="disconnectBLE()">切断</button>
+                        <span class="connection-status disconnected" id="connectionStatus">未接続</span>
+                    </div>
+
+                    <!-- エントリー管理 -->
+                    <div class="ble-control">
+                        <button class="button success" onclick="loadNextEntry()">次のエントリー者へ</button>
+                        <button class="button" onclick="loadCSV()">ファイル読み込み</button>
+                        <input type="file" id="csvFile" accept=".csv" style="display: none;"
+                            onchange="handleCSVFile(event)">
+                    </div>
                 </div>
             </div>
         </div>
