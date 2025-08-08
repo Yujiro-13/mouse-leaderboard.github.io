@@ -81,6 +81,13 @@
                 <input type="number" id="currentRound" value="1" min="1" max="5" oninput="updateRound()">
             </div>
 
+            <!-- 現在走者の成績 -->
+            <div class="card">
+                <h2>現在走者の成績</h2>
+                <div class="position" id="currentPosition">-位</div>
+                <div class="best-time" id="currentBestTime">ベスト: --.-</div>
+            </div>
+
             <!-- 現在走者の記録 -->
             <div class="card">
                 <h2>現在走者の記録</h2>
@@ -88,13 +95,6 @@
                     <div style="text-align: center; color: #718096;">記録がありません</div>
                 </div>
                 <button class="button danger" onclick="clearCurrentRecords()">記録クリア</button>
-            </div>
-
-            <!-- 順位・ベストタイム -->
-            <div class="card">
-                <h2>現在走者の成績</h2>
-                <div class="position" id="currentPosition">-位</div>
-                <div class="best-time" id="currentBestTime">ベスト: --.-</div>
             </div>
             <!-- ランキング -->
             <div class="card">
