@@ -485,7 +485,7 @@ function updateRanking() {
     
     updateDisplay();
     saveData();
-    alert('ランキングを更新しました！');
+    // アラート削除: alert('ランキングを更新しました！');
 }
 
 function clearRanking() {
