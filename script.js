@@ -225,11 +225,8 @@ function addCurrentTime() {
         updateDisplay();
         saveData();
         
-        // ラウンド自動更新
-        if (currentRound < 5) {
-            document.getElementById('currentRound').value = currentRound + 1;
-            updateRound();
-        }
+        // 走行回数を記録数と自動同期
+        updateRoundFromRecords();
         
         // 前回結果は次回のゴール時まで保持（リセットしない）
         // manualTimeのみクリア
@@ -237,7 +234,6 @@ function addCurrentTime() {
     }
 }
 
-// 自動記録用の関数（通知なし）
 function addCurrentTimeAuto() {
     const timeValue = document.getElementById('receivedTime').textContent;
     if (timeValue && timeValue !== '00.000' && timeValue !== '未記録') {
@@ -251,11 +247,8 @@ function addCurrentTimeAuto() {
         updateDisplay();
         saveData();
         
-        // ラウンド自動更新
-        if (currentRound < 5) {
-            document.getElementById('currentRound').value = currentRound + 1;
-            updateRound();
-        }
+        // 走行回数を記録数と自動同期
+        updateRoundFromRecords();
         
         // 前回結果は次回のゴール時まで保持（リセットしない）
         // manualTimeのみクリア
@@ -276,11 +269,8 @@ function addRetiredRecord() {
     updateDisplay();
     saveData();
     
-    // ラウンド自動更新
-    if (currentRound < 5) {
-        document.getElementById('currentRound').value = currentRound + 1;
-        updateRound();
-    }
+    // 走行回数を記録数と自動同期
+    updateRoundFromRecords();
     
     console.log(`第${currentRound}走をリタイアとして記録`);
 }
@@ -288,6 +278,11 @@ function addRetiredRecord() {
 function clearCurrentRecords() {
     if (confirm('現在の記録をすべて削除しますか？')) {
         currentRecordsList = [];
+        
+        // 走行回数を1回に戻す
+        document.getElementById('currentRound').value = 1;
+        updateRound();
+        
         updateDisplay();
         saveData();
     }
@@ -317,6 +312,23 @@ function updateRound() {
     const round = document.getElementById('currentRound').value;
     document.getElementById('roundDisplay').textContent = round + ' / 5';
     saveData();
+}
+
+// 記録数から走行回数を自動更新
+function updateRoundFromRecords() {
+    const recordCount = currentRecordsList.length;
+    const nextRound = recordCount + 1;
+    
+    // 最大5回まで
+    if (nextRound <= 5) {
+        document.getElementById('currentRound').value = nextRound;
+        updateRound();
+        console.log(`走行回数を記録数と同期: ${nextRound}回目`);
+    } else {
+        // 5回を超えた場合は5のまま
+        document.getElementById('currentRound').value = 5;
+        updateRound();
+    }
 }
 
 function updateDisplay() {
@@ -360,6 +372,10 @@ function updateDisplay() {
 
 function removeRecord(index) {
     currentRecordsList.splice(index, 1);
+    
+    // 走行回数を記録数と同期（リタイア含む）
+    updateRoundFromRecords();
+    
     updateDisplay();
     saveData();
 }
