@@ -19,6 +19,16 @@ let currentEntryIndex = 0;
 // 自動記録モード
 let autoRecordMode = false;
 
+// 時間フォーマット用のヘルパー関数
+function formatTimeDisplay(seconds) {
+    if (seconds === null || seconds === undefined) {
+        return '--:--.-';
+    }
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return String(minutes).padStart(2, '0') + ':' + remainingSeconds.toFixed(3).padStart(6, '0');
+}
+
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
     loadSavedData();
@@ -122,16 +132,14 @@ function handleBLEData(event) {
         
         // ESP32のタイムを固定フォーマットで表示
         const timeInSeconds = parseFloat(timeValue);
-        const minutes = Math.floor(timeInSeconds / 60);
-        const seconds = timeInSeconds % 60;
-        const formattedTime = String(minutes).padStart(2, '0') + ':' + seconds.toFixed(3).padStart(6, '0');
+        const formattedTime = formatTimeDisplay(timeInSeconds);
         
         document.getElementById('realtimeTimer').textContent = formattedTime;
         document.getElementById('realtimeTimer').style.color = '#e53e3e';
         
-        // 前回結果として表示（receivedTime）
-        document.getElementById('receivedTime').textContent = timeValue;
-        document.getElementById('manualTime').value = timeValue;
+        // 前回結果として表示（receivedTime）- MM:SS.mmm形式で表示
+        document.getElementById('receivedTime').textContent = formattedTime;
+        document.getElementById('manualTime').value = timeValue; // 入力フィールドには元の数値
         
         // 自動記録モードの場合、自動で記録追加
         if (autoRecordMode) {
@@ -226,53 +234,83 @@ function updateTimerButton() {
 function updateReceivedTime() {
     const manualTime = document.getElementById('manualTime').value;
     if (manualTime) {
-        document.getElementById('receivedTime').textContent = manualTime;
+        const timeInSeconds = parseFloat(manualTime);
+        if (!isNaN(timeInSeconds)) {
+            document.getElementById('receivedTime').textContent = formatTimeDisplay(timeInSeconds);
+        } else {
+            document.getElementById('receivedTime').textContent = manualTime;
+        }
     }
 }
 
 function addCurrentTime() {
-    const timeValue = document.getElementById('receivedTime').textContent;
-    if (timeValue && timeValue !== '00.000' && timeValue !== '未記録') {
-        const currentRound = parseInt(document.getElementById('currentRound').value);
-        currentRecordsList.push({
-            round: currentRound,
-            time: parseFloat(timeValue),
-            type: 'time'
-        });
+    const displayedTime = document.getElementById('receivedTime').textContent;
+    const manualTimeValue = document.getElementById('manualTime').value;
+    
+    // 手動入力値があればそれを、なければBLEから受信した値を使用
+    let timeValue = manualTimeValue || displayedTime;
+    
+    if (timeValue && timeValue !== '00:00.000' && timeValue !== '未記録' && timeValue !== '--:--.-') {
+        // MM:SS.mmm形式から秒数に変換（必要な場合）
+        let timeInSeconds;
+        if (timeValue.includes(':')) {
+            // MM:SS.mmm形式の場合、秒数に変換
+            const parts = timeValue.split(':');
+            const minutes = parseInt(parts[0]);
+            const seconds = parseFloat(parts[1]);
+            timeInSeconds = minutes * 60 + seconds;
+        } else {
+            // 既に秒数の場合
+            timeInSeconds = parseFloat(timeValue);
+        }
         
-        updateDisplay();
-        saveData();
-        
-        // 走行回数を記録数と自動同期
-        updateRoundFromRecords();
-        
-        // 前回結果は次回のゴール時まで保持（リセットしない）
-        // manualTimeのみクリア
-        document.getElementById('manualTime').value = '';
+        if (!isNaN(timeInSeconds)) {
+            const currentRound = parseInt(document.getElementById('currentRound').value);
+            currentRecordsList.push({
+                round: currentRound,
+                time: timeInSeconds,
+                type: 'time'
+            });
+            
+            updateDisplay();
+            saveData();
+            
+            // 走行回数を記録数と自動同期
+            updateRoundFromRecords();
+            
+            // 前回結果は次回のゴール時まで保持（リセットしない）
+            // manualTimeのみクリア
+            document.getElementById('manualTime').value = '';
+        }
     }
 }
 
 function addCurrentTimeAuto() {
-    const timeValue = document.getElementById('receivedTime').textContent;
-    if (timeValue && timeValue !== '00.000' && timeValue !== '未記録') {
-        const currentRound = parseInt(document.getElementById('currentRound').value);
-        currentRecordsList.push({
-            round: currentRound,
-            time: parseFloat(timeValue),
-            type: 'time'
-        });
+    const manualTimeValue = document.getElementById('manualTime').value;
+    
+    if (manualTimeValue && manualTimeValue !== '00.000' && manualTimeValue !== '--:--.-') {
+        const timeInSeconds = parseFloat(manualTimeValue);
         
-        updateDisplay();
-        saveData();
-        
-        // 走行回数を記録数と自動同期
-        updateRoundFromRecords();
-        
-        // 前回結果は次回のゴール時まで保持（リセットしない）
-        // manualTimeのみクリア
-        document.getElementById('manualTime').value = '';
-        
-        console.log(`第${currentRound}走のタイムを自動記録: ${timeValue}秒`);
+        if (!isNaN(timeInSeconds)) {
+            const currentRound = parseInt(document.getElementById('currentRound').value);
+            currentRecordsList.push({
+                round: currentRound,
+                time: timeInSeconds,
+                type: 'time'
+            });
+            
+            updateDisplay();
+            saveData();
+            
+            // 走行回数を記録数と自動同期
+            updateRoundFromRecords();
+            
+            // 前回結果は次回のゴール時まで保持（リセットしない）
+            // manualTimeのみクリア
+            document.getElementById('manualTime').value = '';
+            
+            console.log(`第${currentRound}走のタイムを自動記録: ${formatTimeDisplay(timeInSeconds)}`);
+        }
     }
 }
 
@@ -365,7 +403,7 @@ function updateDisplay() {
             } else {
                 return `<div class="record-item">
                     <span>第${record.round}走</span>
-                    <span style="font-weight: bold; color: #667eea;">${record.time.toFixed(3)}秒</span>
+                    <span style="font-weight: bold; color: #667eea;">${formatTimeDisplay(record.time)}</span>
                     <button class="button" onclick="removeRecord(${index})" style="padding: 5px 10px; font-size: 12px;">削除</button>
                 </div>`;
             }
@@ -376,12 +414,12 @@ function updateDisplay() {
     const validTimes = currentRecordsList.filter(record => record.type === 'time').map(record => record.time);
     if (validTimes.length > 0) {
         const bestTime = Math.min(...validTimes);
-        document.getElementById('currentBestTime').textContent = `ベスト: ${bestTime.toFixed(3)}秒`;
+        document.getElementById('currentBestTime').textContent = `ベスト: ${formatTimeDisplay(bestTime)}`;
         
         // 順位計算
         calculateCurrentPosition(bestTime);
     } else {
-        document.getElementById('currentBestTime').textContent = 'ベスト: --.-';
+        document.getElementById('currentBestTime').textContent = 'ベスト: --:--.-';
         document.getElementById('currentPosition').textContent = '-位';
     }
 
@@ -478,7 +516,7 @@ function updateRankingDisplay() {
                 ${displayName}
             </div>
             <div style="font-size: 1.2em; font-weight: bold; color: #667eea;">
-                ${entry.bestTime.toFixed(3)}秒
+                ${formatTimeDisplay(entry.bestTime)}
             </div>
         </div>`;
     }).join('');
@@ -657,7 +695,7 @@ function resetCurrentEntryData() {
     resetTimer();
     
     // 計測タイムをリセット（前回の結果を「未記録」表示）
-    document.getElementById('receivedTime').textContent = '未記録';
+    document.getElementById('receivedTime').textContent = '--:--.-';
     document.getElementById('manualTime').value = '';
     
     // 表示を更新
