@@ -152,7 +152,7 @@ input[type="text"]:focus, input[type="number"]:focus {
 }
 
 .timer-display {
-    font-size: 5em;
+    font-size: 80px; /* emからpxに変更 */
     font-weight: bold;
     text-align: center;
     color: #1a202c;
@@ -162,14 +162,16 @@ input[type="text"]:focus, input[type="number"]:focus {
     border: 3px solid #38a169;
     border-radius: 15px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    font-family: 'Courier New', 'Monaco', 'Menlo', 'Consolas', monospace; /* フォントフォールバックを強化 */
 }
 
 .current-time {
-    font-size: 2.5em;
+    font-size: 40px; /* emからpxに変更 */
     font-weight: bold;
     text-align: center;
     color: #667eea;
     margin: 15px 0;
+    font-family: 'Courier New', 'Monaco', 'Menlo', 'Consolas', monospace; /* フォントフォールバックを強化 */
 }
 
 /* 計測タイムカード内のレイアウト調整 */
@@ -192,7 +194,7 @@ input[type="text"]:focus, input[type="number"]:focus {
 }
 
 .realtime-display {
-    font-size: 6.3em !important;
+    font-size: 100px !important; /* emからpxに変更して絶対サイズ指定 */
     font-weight: bold !important;
     color: #1a202c !important;
     margin: 10px 0 !important;
@@ -202,11 +204,13 @@ input[type="text"]:focus, input[type="number"]:focus {
     border: 4px solid #667eea !important;
     border-radius: 15px !important;
     flex-shrink: 0; /* サイズを固定 */
-    font-family: 'Courier New', monospace !important; /* 等幅フォント */
+    font-family: 'Courier New', 'Monaco', 'Menlo', 'Consolas', monospace !important; /* フォントフォールバックを強化 */
     min-width: 600px; /* 最小幅を固定 */
     width: 600px; /* 幅を固定 */
     text-align: center !important;
     letter-spacing: 0.05em !important; /* 文字間隔を調整 */
+    line-height: 1.2 !important; /* 行間を明示的に指定 */
+    height: auto !important; /* 高さを自動調整 */
 }
 
 .realtime-controls {
@@ -311,7 +315,7 @@ input[type="text"]:focus, input[type="number"]:focus {
 }
 
 .round-display {
-    font-size: 5em;
+    font-size: 80px; /* emからpxに変更 */
     font-weight: bold;
     text-align: center;
     color: #1a202c;
@@ -321,6 +325,7 @@ input[type="text"]:focus, input[type="number"]:focus {
     border: 3px solid #d69e2e;
     border-radius: 15px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    font-family: 'Courier New', 'Monaco', 'Menlo', 'Consolas', monospace; /* フォントフォールバックを強化 */
 }
 
 .records-list {
@@ -390,23 +395,25 @@ input[type="text"]:focus, input[type="number"]:focus {
 }
 
 .best-time {
-    font-size: 2em;
+    font-size: 32px; /* emからpxに変更 */
     font-weight: bold;
     color: #1a202c;
     text-align: center;
     margin: 1px 0;
     padding: 5px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    font-family: 'Courier New', 'Monaco', 'Menlo', 'Consolas', monospace; /* フォントフォールバックを強化 */
 }
 
 .position {
-    font-size: 2.2em;
+    font-size: 35px; /* emからpxに変更 */
     font-weight: bold;
     color: #1a202c;
     text-align: center;
     margin: 1px 0;
     padding: 1px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    font-family: 'Courier New', 'Monaco', 'Menlo', 'Consolas', monospace; /* フォントフォールバックを強化 */
 }
 
 .auto-record-indicator {
@@ -437,16 +444,18 @@ input[type="text"]:focus, input[type="number"]:focus {
     }
     
     .timer-display {
-        font-size: 2em;
+        font-size: 32px; /* emからpxに変更 */
         padding: 15px;
     }
     
     .current-time {
-        font-size: 1.8em;
+        font-size: 28px; /* emからpxに変更 */
     }
     
     .realtime-display {
-        font-size: 6.3em !important;
+        font-size: 80px !important; /* モバイル用のpxサイズ */
+        min-width: 400px !important; /* モバイル用の最小幅 */
+        width: 400px !important; /* モバイル用の幅 */
     }
     
     .measurement-card {
