@@ -120,8 +120,13 @@ function handleBLEData(event) {
         // ボタン状態を更新
         updateRealtimeButtonState();
         
-        // ESP32のタイムでリアルタイムタイマーを上書き（最終確定値）
-        document.getElementById('realtimeTimer').textContent = timeValue;
+        // ESP32のタイムを固定フォーマットで表示
+        const timeInSeconds = parseFloat(timeValue);
+        const minutes = Math.floor(timeInSeconds / 60);
+        const seconds = timeInSeconds % 60;
+        const formattedTime = String(minutes).padStart(2, '0') + ':' + seconds.toFixed(3).padStart(6, '0');
+        
+        document.getElementById('realtimeTimer').textContent = formattedTime;
         document.getElementById('realtimeTimer').style.color = '#e53e3e';
         
         // 前回結果として表示（receivedTime）
@@ -139,7 +144,7 @@ function handleBLEData(event) {
     } else if (value === 'RESTART') {
         // ESP32からリスタート信号受信 - タイマーリセット後、即座に再開始
         stopRealTimeMeasurement();
-        document.getElementById('realtimeTimer').textContent = '00.000';
+        document.getElementById('realtimeTimer').textContent = '00:00.000';
         document.getElementById('realtimeTimer').style.color = '#1a202c';
         
         // 少し遅延してから新しい計測を開始（リセット表示を確認できるように）
@@ -151,7 +156,7 @@ function handleBLEData(event) {
         console.log('ESP32リスタート信号受信 - タイマーリセット&再開始');
     } else if (value === 'READY') {
         // ESP32がリセット完了 - 新しい走行準備
-        document.getElementById('realtimeTimer').textContent = '00.000';
+        document.getElementById('realtimeTimer').textContent = '00:00.000';
         document.getElementById('realtimeTimer').style.color = '#38a169';
         console.log('ESP32リセット完了');
     }
@@ -520,7 +525,13 @@ function updateRealTimeDisplay() {
     if (isMeasuring && measurementStartTime) {
         const currentTime = performance.now();
         const elapsedSeconds = (currentTime - measurementStartTime) / 1000;
-        document.getElementById('realtimeTimer').textContent = elapsedSeconds.toFixed(3);
+        
+        // 固定フォーマット（分:秒.ミリ秒）で表示
+        const minutes = Math.floor(elapsedSeconds / 60);
+        const seconds = elapsedSeconds % 60;
+        const formattedTime = String(minutes).padStart(2, '0') + ':' + seconds.toFixed(3).padStart(6, '0');
+        
+        document.getElementById('realtimeTimer').textContent = formattedTime;
         
         // requestAnimationFrameで次の更新をスケジュール（最高速）
         if (isMeasuring) {
@@ -674,7 +685,7 @@ function resetRealtimeTimer() {
     stopRealTimeMeasurement();
     
     // 表示をリセット
-    document.getElementById('realtimeTimer').textContent = '00.000';
+    document.getElementById('realtimeTimer').textContent = '00:00.000';
     document.getElementById('realtimeTimer').style.color = '#1a202c';
     
     // ボタン状態を更新
