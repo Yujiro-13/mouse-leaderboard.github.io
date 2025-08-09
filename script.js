@@ -17,7 +17,7 @@ let entryList = [];
 let currentEntryIndex = 0;
 
 // 自動記録モード
-let autoRecordMode = false;
+let autoRecordMode = true; // デフォルトでON
 
 // 時間フォーマット用のヘルパー関数
 function formatTimeDisplay(seconds) {
@@ -35,6 +35,13 @@ document.addEventListener('DOMContentLoaded', function() {
     loadDefaultCSV(); // デフォルトCSVの読み込み
     updateDisplay();
     updateRealtimeButtonState(); // ボタン状態の初期化
+    
+    // 自動記録モードをデフォルトでONに設定
+    if (!localStorage.getItem('racingData')) {
+        autoRecordMode = true;
+        document.getElementById('autoRecordMode').checked = true;
+        toggleAutoRecord();
+    }
 });
 
 // データ保存・読み込み
@@ -304,6 +311,9 @@ function addCurrentTimeAuto() {
             
             // 走行回数を記録数と自動同期
             updateRoundFromRecords();
+            
+            // 自動記録の際にランキングも自動で更新
+            updateRanking();
             
             // 前回結果は次回のゴール時まで保持（リセットしない）
             // manualTimeのみクリア
