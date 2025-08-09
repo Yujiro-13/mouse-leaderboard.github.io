@@ -164,7 +164,7 @@ function handleBLEData(event) {
         console.log('ESP32リスタート信号受信 - タイマーリセット&再開始');
     } else if (value === 'READY') {
         // ESP32がリセット完了 - 新しい走行準備
-        document.getElementById('realtimeTimer').textContent = '00:00.000';
+        //document.getElementById('realtimeTimer').textContent = '00:00.000';
         document.getElementById('realtimeTimer').style.color = '#38a169';
         console.log('ESP32リセット完了');
     }
