@@ -137,13 +137,18 @@ function handleBLEData(event) {
         
         console.log('ESP32計測タイム確定:', timeValue);
     } else if (value === 'RESTART') {
-        // ESP32からリスタート信号受信 - タイマーリセット
+        // ESP32からリスタート信号受信 - タイマーリセット後、即座に再開始
         stopRealTimeMeasurement();
         document.getElementById('realtimeTimer').textContent = '00.000';
         document.getElementById('realtimeTimer').style.color = '#1a202c';
-        // ボタン状態を更新
-        updateRealtimeButtonState();
-        console.log('ESP32リスタート信号受信 - タイマーリセット');
+        
+        // 少し遅延してから新しい計測を開始（リセット表示を確認できるように）
+        setTimeout(() => {
+            startRealTimeMeasurement();
+            updateRealtimeButtonState();
+        }, 100); // 0.1秒後に再開始
+        
+        console.log('ESP32リスタート信号受信 - タイマーリセット&再開始');
     } else if (value === 'READY') {
         // ESP32がリセット完了 - 新しい走行準備
         document.getElementById('realtimeTimer').textContent = '00.000';
