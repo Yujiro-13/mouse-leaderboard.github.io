@@ -625,7 +625,8 @@ function loadNextEntry() {
     // 新しいエントリー情報を設定
     setCurrentEntry();
     
-    alert(`次のエントリー者: ${entryList[currentEntryIndex].name} に移動しました`);
+    // コンソールにのみログ出力（ポップアップなし）
+    console.log(`次のエントリー者: ${entryList[currentEntryIndex].name} に移動しました`);
     saveData();
 }
 
