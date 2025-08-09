@@ -618,16 +618,154 @@ function loadCSV() {
 
 function handleCSVFile(event) {
     const file = event.target.files[0];
-    if (file && file.type === 'text/csv') {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const csvText = e.target.result;
-            parseCSV(csvText);
-            alert('CSVファイルを読み込みました！');
-        };
-        reader.readAsText(file, 'UTF-8');
+    if (file && (file.type === 'text/csv' || file.name.toLowerCase().endsWith('.csv') || file.name.toLowerCase().endsWith('.txt'))) {
+        
+        // より強力な文字エンコーディング検出と読み込み
+        function tryReadWithEncoding(encoding) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let csvText = e.target.result;
+                    
+                    // BOM削除
+                    if (csvText.charCodeAt(0) === 0xFEFF) {
+                        csvText = csvText.substring(1);
+                    }
+                    
+                    // 文字化け検出（より厳密）
+                    const hasReplacementChar = /\uFFFD/.test(csvText); // Unicode replacement character
+                    const hasGarbledPattern = /[��ï¿½]/.test(csvText); // 一般的な文字化けパターン
+                    const hasControlChars = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/.test(csvText); // 制御文字
+                    
+                    if (hasReplacementChar || hasGarbledPattern || hasControlChars) {
+                        reject(`文字化けまたは無効な文字を検出 (${encoding})`);
+                        return;
+                    }
+                    
+                    // 日本語文字の存在確認
+                    const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(csvText);
+                    
+                    resolve({ 
+                        text: csvText, 
+                        encoding: encoding,
+                        hasJapanese: hasJapanese,
+                        quality: hasJapanese ? 100 : 50 // 日本語があれば高品質
+                    });
+                };
+                reader.onerror = () => reject(`読み込みエラー (${encoding})`);
+                reader.readAsText(file, encoding);
+            });
+        }
+        
+        // バイナリ読み込みで文字コード推定
+        function detectEncodingFromBytes() {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const bytes = new Uint8Array(e.target.result);
+                    let detectedEncoding = 'UTF-8'; // デフォルト
+                    
+                    // BOM検出
+                    if (bytes.length >= 3 && bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) {
+                        detectedEncoding = 'UTF-8';
+                    }
+                    // Shift_JISの特徴的なバイト列を検出
+                    else if (bytes.length > 10) {
+                        let sjisScore = 0;
+                        for (let i = 0; i < Math.min(bytes.length - 1, 1000); i++) {
+                            const b1 = bytes[i];
+                            const b2 = bytes[i + 1];
+                            
+                            // Shift_JISのひらがな・カタカナ範囲
+                            if ((b1 >= 0x82 && b1 <= 0x83) || (b1 >= 0x88 && b1 <= 0x9F)) {
+                                if (b2 >= 0x40 && b2 <= 0xFC) {
+                                    sjisScore++;
+                                }
+                            }
+                        }
+                        
+                        if (sjisScore > 5) {
+                            detectedEncoding = 'Shift_JIS';
+                        }
+                    }
+                    
+                    console.log(`バイト解析による推定エンコーディング: ${detectedEncoding}`);
+                    resolve(detectedEncoding);
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        // メイン処理
+        async function loadWithSmartEncoding() {
+            try {
+                // 1. バイナリ解析でエンコーディング推定
+                const detectedEncoding = await detectEncodingFromBytes();
+                
+                // 2. 推定されたエンコーディングを最初に試行
+                const encodings = [detectedEncoding];
+                
+                // 3. その他のエンコーディングも試行リストに追加
+                const fallbackEncodings = ['UTF-8', 'Shift_JIS', 'EUC-JP', 'ISO-2022-JP'];
+                fallbackEncodings.forEach(enc => {
+                    if (!encodings.includes(enc)) {
+                        encodings.push(enc);
+                    }
+                });
+                
+                let bestResult = null;
+                
+                // 4. 各エンコーディングで試行
+                for (let encoding of encodings) {
+                    try {
+                        const result = await tryReadWithEncoding(encoding);
+                        
+                        if (!bestResult || result.quality > bestResult.quality) {
+                            bestResult = result;
+                        }
+                        
+                        // 日本語が正しく読めた場合は即座に採用
+                        if (result.hasJapanese && result.quality >= 100) {
+                            break;
+                        }
+                        
+                    } catch (error) {
+                        console.log(`${encoding}での読み込み失敗:`, error);
+                    }
+                }
+                
+                if (bestResult) {
+                    parseCSV(bestResult.text);
+                    alert(`CSVファイルを読み込みました！\nエンコーディング: ${bestResult.encoding}\n日本語: ${bestResult.hasJapanese ? '検出' : '未検出'}`);
+                } else {
+                    throw new Error('すべてのエンコーディングで読み込みに失敗');
+                }
+                
+            } catch (error) {
+                console.error('CSV読み込みエラー:', error);
+                
+                // 最終手段：UTF-8で強制読み込み
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let csvText = e.target.result;
+                    if (csvText.charCodeAt(0) === 0xFEFF) {
+                        csvText = csvText.substring(1);
+                    }
+                    
+                    // 文字化け文字を削除
+                    csvText = csvText.replace(/[\uFFFD��ï¿½]/g, '?');
+                    
+                    parseCSV(csvText);
+                    alert('CSVファイルを読み込みました！\n（一部文字化けの可能性があります）');
+                };
+                reader.readAsText(file, 'UTF-8');
+            }
+        }
+        
+        loadWithSmartEncoding();
+        
     } else {
-        alert('CSVファイルを選択してください。');
+        alert('CSVファイル（.csv）またはテキストファイル（.txt）を選択してください。');
     }
 }
 
@@ -635,17 +773,54 @@ function parseCSV(csvText) {
     const lines = csvText.trim().split('\n');
     entryList = [];
     
-    // ヘッダー行をスキップ（1行目）
-    for (let i = 1; i < lines.length; i++) {
+    if (lines.length === 0) {
+        console.log('CSVファイルが空です');
+        return;
+    }
+    
+    // 区切り文字を自動判定（タブまたはカンマ）
+    const firstLine = lines[0];
+    let delimiter = ',';
+    if (firstLine.includes('\t')) {
+        delimiter = '\t';
+    }
+    console.log(`区切り文字を検出: ${delimiter === '\t' ? 'タブ' : 'カンマ'}`);
+    
+    // ヘッダー行の判定（1行目が数字で始まる場合はヘッダーなしと判断）
+    let startIndex = 0;
+    const firstLineColumns = firstLine.split(delimiter);
+    const firstColumn = firstLineColumns[0].trim().replace(/"/g, '');
+    
+    // 最初の列が数字かエントリー番号形式（#001など）でない場合はヘッダー行として扱う
+    if (!/^(\d+|#\d+)$/.test(firstColumn)) {
+        startIndex = 1; // ヘッダー行をスキップ
+        console.log('ヘッダー行を検出、スキップします');
+    } else {
+        console.log('ヘッダー行なし、1行目からデータとして処理');
+    }
+    
+    // データ行を処理
+    for (let i = startIndex; i < lines.length; i++) {
         const line = lines[i].trim();
         if (line) {
-            const columns = line.split(',').map(col => col.trim().replace(/"/g, ''));
+            const columns = line.split(delimiter).map(col => col.trim().replace(/"/g, ''));
+            
             if (columns.length >= 2) {
+                // エントリー番号の正規化（数字のみの場合は#を付加）
+                let entryNumber = columns[0];
+                if (/^\d+$/.test(entryNumber)) {
+                    entryNumber = '#' + entryNumber.padStart(3, '0'); // #001形式に変換
+                }
+                
                 entryList.push({
-                    number: columns[0],
-                    name: columns[1],
+                    number: entryNumber,
+                    name: columns[1] || '名前なし',
                     robotName: columns[2] || '' // 3列目があればロボット名、なければ空文字
                 });
+                
+                console.log(`エントリー追加: ${entryNumber} - ${columns[1]} - ${columns[2] || '(ロボット名なし)'}`);
+            } else {
+                console.log(`無効な行をスキップ: ${line}`);
             }
         }
     }
