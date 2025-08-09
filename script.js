@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadSavedData();
     loadDefaultCSV(); // デフォルトCSVの読み込み
     updateDisplay();
+    updateRealtimeButtonState(); // ボタン状態の初期化
 });
 
 // データ保存・読み込み
@@ -107,6 +108,8 @@ function handleBLEData(event) {
     if (value === 'START') {
         // ESP32からスタート信号受信 - リアルタイム計測開始
         startRealTimeMeasurement();
+        // ボタン状態を更新
+        updateRealtimeButtonState();
         console.log('ESP32計測開始');
     } else if (value.startsWith('TIME:')) {
         // タイムデータの形式 (例: "TIME:12.345")
@@ -114,6 +117,8 @@ function handleBLEData(event) {
         
         // リアルタイム計測を停止
         stopRealTimeMeasurement();
+        // ボタン状態を更新
+        updateRealtimeButtonState();
         
         // ESP32のタイムでリアルタイムタイマーを上書き（最終確定値）
         document.getElementById('realtimeTimer').textContent = timeValue;
@@ -617,4 +622,48 @@ function resetCurrentEntryData() {
     // 表示を更新
     updateDisplay();
     updateRound();
+}
+
+// リアルタイムタイマーの手動操作機能
+function toggleRealtimeTimer() {
+    if (isMeasuring) {
+        // 停止
+        stopRealTimeMeasurement();
+        console.log('リアルタイムタイマー手動停止');
+    } else {
+        // 開始
+        startRealTimeMeasurement();
+        console.log('リアルタイムタイマー手動開始');
+    }
+    // ボタン状態を更新
+    updateRealtimeButtonState();
+}
+
+function resetRealtimeTimer() {
+    // タイマーを停止
+    stopRealTimeMeasurement();
+    
+    // 表示をリセット
+    document.getElementById('realtimeTimer').textContent = '00.000';
+    document.getElementById('realtimeTimer').style.color = '#1a202c';
+    
+    // ボタン状態を更新
+    updateRealtimeButtonState();
+    
+    console.log('リアルタイムタイマーリセット');
+}
+
+// ボタンの状態を現在のタイマー状態に合わせて更新
+function updateRealtimeButtonState() {
+    const button = document.getElementById('realtimeToggleBtn');
+    
+    if (isMeasuring) {
+        // タイマー動作中
+        button.textContent = 'ストップ';
+        button.className = 'button danger';
+    } else {
+        // タイマー停止中
+        button.textContent = 'スタート';
+        button.className = 'button success';
+    }
 }

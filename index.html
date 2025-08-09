@@ -47,6 +47,11 @@
                         <input type="text" id="manualTime" placeholder="例: 12.345" oninput="updateReceivedTime()">
                     </div>
                     
+                    <div class="realtime-controls">
+                        <button class="button success" id="realtimeToggleBtn" onclick="toggleRealtimeTimer()">スタート</button>
+                        <button class="button" onclick="resetRealtimeTimer()">リセット</button>
+                    </div>
+                    
                     <div class="control-actions">
                         <button class="button success" onclick="addCurrentTime()">記録追加</button>
                         <button class="button warning" onclick="addRetiredRecord()">リタイア</button>
